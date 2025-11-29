@@ -1,7 +1,20 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { AssessmentScores } from "../types";
 
-const apiKey = process.env.API_KEY || '';
+// Safely retrieve API Key to prevent "process is not defined" crash in browser
+const getApiKey = () => {
+  try {
+    // Check if process exists before accessing it
+    if (typeof process !== 'undefined' && process.env) {
+      return process.env.API_KEY || '';
+    }
+    return '';
+  } catch (e) {
+    return '';
+  }
+};
+
+const apiKey = getApiKey();
 const ai = new GoogleGenAI({ apiKey });
 
 // 1. Quick Summary using Flash (Low Latency)
@@ -26,7 +39,7 @@ export const generateQuickSummary = async (teacherName: string, scores: Assessme
     return response.text || "Gagal menghasilkan ringkasan.";
   } catch (error) {
     console.error("Error generating summary:", error);
-    return "Terjadi kesalahan saat menghubungi layanan AI.";
+    return "Terjadi kesalahan saat menghubungi layanan AI. Pastikan API Key sudah dipasang.";
   }
 };
 
@@ -59,7 +72,7 @@ export const generateDeepAnalysis = async (teacherName: string, subject: string,
     return response.text || "Gagal menghasilkan analisis mendalam.";
   } catch (error) {
     console.error("Error generating deep analysis:", error);
-    return "Terjadi kesalahan saat melakukan analisis mendalam. Pastikan koneksi stabil.";
+    return "Terjadi kesalahan saat melakukan analisis mendalam. Pastikan koneksi stabil dan API Key valid.";
   }
 };
 
@@ -99,6 +112,6 @@ export const getChatResponse = async (history: {role: string, parts: {text: stri
         return result.text;
     } catch (error) {
         console.error("Chat error:", error);
-        return "Maaf, saya sedang mengalami gangguan.";
+        return "Maaf, saya sedang mengalami gangguan. Pastikan API Key Anda sudah benar.";
     }
 }
